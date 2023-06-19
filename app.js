@@ -1,5 +1,4 @@
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
+const { JSDOM } = require("jsdom");
 
 // const dom = new JSDOM(`<!DOCTYPE html><p>Hello World</p>`);
 
@@ -18,97 +17,98 @@ async function main() {
   const baseURL = process.argv[2];
 
   console.log(`Starting Crawl of ${baseURL}`);
-  //   const pages = await crawlPage(baseURL, baseURL, {});
+  const pages = await crawlPage(baseURL, baseURL, {});
   //   printReport(pages);
 }
 
 main();
 
-// async function crawlPage(baseURL, currentURL, pages) {
-//   const baseURLObj = new URL(baseURL);
-//   const currentURLObj = new URL(currentURL);
-//   if (baseURLObj.hostname !== currentURLObj.hostname) {
-//     return pages;
-//   }
+async function crawlPage(baseURL, currentURL, pages) {
+  const baseURLObj = new URL(baseURL);
+  const currentURLObj = new URL(currentURL);
+  if (baseURLObj.hostname !== currentURLObj.hostname) {
+    return pages;
+  }
 
-//   const normalizedCurrentURL = normalizeURL(currentURL);
-//   if (pages[normalizedCurrentURL] > 0) {
-//     pages[normalizedCurrentURL]++;
-//     return pages;
-//   }
+  const normalizedCurrentURL = normalizeURL(currentURL);
+  if (pages[normalizedCurrentURL] > 0) {
+    pages[normalizedCurrentURL]++;
+    return pages;
+  }
 
-//   pages[normalizedCurrentURL] = 1;
+  pages[normalizedCurrentURL] = 1;
 
-//   console.log(`extending tendrils through ${currentURL}`);
+  console.log(`extending tendrils through ${currentURL}`);
 
-//   try {
-//     const resp = await fetch(currentURL);
+  try {
+    const resp = await fetch(currentURL);
 
-//     if (resp.status > 399) {
-//       console.log(
-//         `error in fetch with status code: ${resp.status} on page ${currentURL}`
-//       );
-//       return pages;
-//     }
+    if (resp.status > 399) {
+      console.log(
+        `error in fetch with status code: ${resp.status} on page ${currentURL}`
+      );
+      return pages;
+    }
 
-//     const contentType = resp.headers.get("content-type");
-//     if (!contentType.includes("text/html")) {
-//       console.log(
-//         `non html response, content type: ${contentType} on page ${currentURL}`
-//       );
-//       return pages;
-//     }
+    const contentType = resp.headers.get("content-type");
+    if (!contentType.includes("text/html")) {
+      console.log(
+        `non html response, content type: ${contentType} on page ${currentURL}`
+      );
+      return pages;
+    }
 
-//     const htmlBody = await resp.text();
+    const htmlBody = await resp.text();
 
-//     const nextURLs = getURLsFromHTML(htmlBody, baseURL);
+    const nextURLs = getURLsFromHTML(htmlBody, baseURL);
 
-//     for (const nextURL of nextURLs) {
-//       pages = await crawlPage(baseURL, nextURL, pages);
-//     }
-//   } catch (err) {
-//     console.log(`error in fetch: ${err.message}, on page: ${currentURL}`);
-//   }
+    // for (const nextURL of nextURLs) {
+    //   pages = await crawlPage(baseURL, nextURL, pages);
+    // }
+  } catch (err) {
+    console.log(`error in fetch: ${err.message}, on page: ${currentURL}`);
+  }
 
-//   return pages;
-// }
+  return pages;
+}
 
-// function getURLsFromHTML(htmlBody, baseURL) {
-//   const urls = [];
-//   const dom = new JSDOM(htmlBody);
-//   const linkElements = dom.window.document.querySelectorAll("a");
+function getURLsFromHTML(htmlBody, baseURL) {
+  const urls = [];
+  const dom = new JSDOM(htmlBody);
 
-//   for (const linkElement of linkElements) {
-//     if (linkElement.href.slice(0, 1) === "/") {
-//       // relative
-//       try {
-//         const urlObj = new URL(`${baseURL}${linkElement.href}`);
+  const linkElements = dom.window.document.querySelectorAll("a");
 
-//         urls.push(`${baseURL}${linkElement.href}`);
-//       } catch (err) {
-//         console.log(`error with relative url: ${err.message}`);
-//       }
-//     } else {
-//       // absolute
-//       try {
-//         const urlObj = new URL(linkElement.href);
-//         urls.push(urlObj.href);
-//       } catch (err) {
-//         console.log(`error with absolute url: ${err.message}`);
-//       }
-//     }
-//   }
+  for (const linkElement of linkElements) {
+    if (linkElement.href.slice(0, 1) === "/") {
+      // relative
+      try {
+        const urlObj = new URL(`${baseURL}${linkElement.href}`);
 
-//   return urls;
-// }
+        urls.push(`${baseURL}${linkElement.href}`);
+      } catch (err) {
+        console.log(`error with relative url: ${err.message}`);
+      }
+    } else {
+      // absolute
+      try {
+        const urlObj = new URL(linkElement.href);
+        urls.push(urlObj.href);
+      } catch (err) {
+        console.log(`error with absolute url: ${err.message}`);
+      }
+    }
+  }
 
-// function normalizeURL(urlString) {
-//     const urlObj = new URL(urlString);
-//     const hostPath = `${urlObj.hostname}${urlObj.pathname}`;
+  return urls;
+}
 
-//     if (hostPath.length > 0 && hostPath.slice(-1) === "/") {
-//       return hostPath.slice(0, -1);
-//     }
+function normalizeURL(urlString) {
+  const urlObj = new URL(urlString);
+  const hostPath = `${urlObj.hostname}${urlObj.pathname}`;
 
-//     return hostPath;
-//   }
+  if (hostPath.length > 0 && hostPath.slice(-1) === "/") {
+    return hostPath.slice(0, -1);
+  }
+
+  return hostPath;
+}
