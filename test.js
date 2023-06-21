@@ -1,5 +1,7 @@
 const { JSDOM } = require("jsdom");
 
+const elArr = [];
+
 const main = async () => {
   if (process.argv.length < 3) {
     console.log("no website provided");
@@ -48,28 +50,52 @@ const fetcher = async (b) => {
   }
 };
 
+function nodeObject(t, p, c, s) {
+  this.tagName = t;
+  this.parent = p;
+  this.children = c;
+  this.siblings = s;
+
+  this.id = `${this.tagName}.${this.parent ? this.parent : 0}.${
+    Math.floor(Math.random() * 10000) + 1
+  }`;
+}
+
 function createTree(htmlBody) {
   const dom = new JSDOM(htmlBody);
+  const domNode = dom.serialize();
+  const { Node } = dom.window;
 
-  const domNode = dom.window.document.documentElement;
-  //   const element = {
-  //     tag: domNode.tagName,
-  //     children: [],
-  //   };
+  function domArrayNormalizer(a) {
+    return Array.from(a).filter((node) => node.nodeType === Node.ELEMENT_NODE);
+  }
 
-  const arr = Array.from(domNode.childNodes);
-  //   console.log(domNode.outerHTML);
+  const arr = domArrayNormalizer(domNode.childNodes);
+
   console.log("--------Check Level 2");
 
   arr.forEach((el) => {
-    if (el.tagName === "BODY") {
-      Array.from(el.children).forEach((c) => {
-        console.log(c.tagName);
-      });
-    }
+    // console.log(el, "||", el.children);
+    // console.log(el.children);
+
+    let t = new nodeObject(
+      el.tagName,
+      el.parentElement.tagName,
+      el.childNodes.forEach((e) => console.log(e)),
+      el.siblings
+    );
+
+    elArr.push(t);
+
+    // if (el.tagName === "BODY") {
+    //   Array.from(el.children).forEach((c) => {
+    //     console.log(c.tagName);
+    //   });
+    // }
   });
 
   console.log("---------------------");
+  console.log(elArr);
 
   //   const childElements = Array.from(domNode.childNodes).filter(
   //     (node) => node.nodeType === Node.ELEMENT_NODE
