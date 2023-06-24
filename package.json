@@ -10,9 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.4.0",
-    "cheerio": "^1.0.0-rc.12",
-    "graphviz": "^0.0.9",
     "jsdom": "^22.1.0"
   }
 }
