@@ -1,8 +1,8 @@
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
-const st =
-  '<section class="section-tasks" id="tasks"><div class="task"><div class="task__icon"><span></span></div><p class="task__text"><strong>Full-Stack Development: </strong>I am capable of building full-stack websites and applications, readyto use with a functional front and back-end. I can deploy andmaintain these web applications.</p></div></section>';
+// const st =
+//   '<section class="section-tasks" id="tasks"><div class="task"><div class="task__icon"><span></span></div><p class="task__text"><strong>Full-Stack Development: </strong>I am capable of building full-stack websites and applications, readyto use with a functional front and back-end. I can deploy andmaintain these web applications.</p></div></section>';
 
 const fetchHtml = async (url) => {
   try {
@@ -39,18 +39,36 @@ const createDom = (html) => {
 };
 
 const elementNodes = [];
-const traverseNodes = (node) => {
-  if (node.nodeType === 1) {
-    let obj = {
-      tag: node.tagName,
-      childNodes: Array.from(node.childNodes).filter((el) => el.nodeType === 1),
-      parent: node.tagName,
-    };
+// const traverseNodes = (node) => {
+//   if (node.nodeType === 1) {
+//     let obj = {
+//       tag: node.tagName,
+//       childNodes: Array.from(node.childNodes).filter((el) => el.nodeType === 1),
+//       parent: node.tagName,
+//     };
 
-    elementNodes.push(obj);
+//     elementNodes.push(obj);
 
+//     for (let i = 0; i < node.childNodes.length; i++) {
+//       traverseNodes(Array.from(node.childNodes)[i]);
+//     }
+//   }
+// };
+const traverseNodes = (node, depth = 0) => {
+  if (node.nodeType === 3) {
+    // Skip #text nodes
+    return;
+  }
+  let indent = "";
+  for (let i = 0; i < depth; i++) {
+    indent += "   ";
+  }
+
+  console.log(indent + node.nodeName);
+
+  if (node.childNodes && node.childNodes.length > 0) {
     for (let i = 0; i < node.childNodes.length; i++) {
-      traverseNodes(Array.from(node.childNodes)[i]);
+      traverseNodes(node.childNodes[i], depth + 1);
     }
   }
 };
@@ -70,10 +88,10 @@ const main = async () => {
 
   // const html = await fetchHtml(baseURL);
 
-  // const html = await fetchHtml("https://alltodev.com/");
-  // const document = createDom(html);
+  const html = await fetchHtml("https://alltodev.com/");
+  const document = createDom(html);
 
-  const document = createDom(st);
+  // const document = createDom(st);
 
   const startingNode = document.documentElement;
 
